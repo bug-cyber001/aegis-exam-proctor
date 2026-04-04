@@ -4,9 +4,9 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Aegis Exam List') }}
             </h2>
-            <a href="/exams/create" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm">
+            {{-- <a href="/exams/create" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm">
                 + Create New Exam
-            </a>
+            </a> --}}
         </div>
     </x-slot>
 

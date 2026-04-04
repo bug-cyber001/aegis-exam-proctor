@@ -6,6 +6,8 @@ use App\Http\Controllers\ProfileController;
 use App\Models\Violation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\StudentController;
+use App\Http\Controllers\TeacherController;
 
 // 1. Public Routes
 Route::get('/', function () {
@@ -27,6 +29,17 @@ Route::middleware('auth', 'verified')->group(function () {
     Route::get('/exams', [ExamController::class, 'index'])->name('exams.index');
     Route::get('/exams/create', [ExamController::class, 'create'])->name('exams.create');
     Route::post('/exams', [ExamController::class, 'store'])->name('exams.store');
+
+    // Student Route
+    Route::post('/student/join-exam', [StudentController::class, 'joinExam'])->name('student.join');
+    Route::get('/student/exam/{id}', [StudentController::class, 'takeExam'])->name('student.exam.take');
+
+    // Teacher Route
+    Route::post('/teacher/create-exam', [TeacherController::class, 'storeExam'])->name('teacher.exam.store');
+    // Delete Exam Route
+    Route::delete('/teacher/exam/{id}', [TeacherController::class, 'destroyExam'])->name('teacher.exam.destroy');
+
+    Route::get('/teacher/reports', [TeacherController::class, 'reports'])->name('teacher.reports');
 
     // Violation AI Logging
     Route::post('/violations', function (Request $request) {

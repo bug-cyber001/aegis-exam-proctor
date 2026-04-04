@@ -36,4 +36,9 @@ class User extends Authenticatable
         'password',
         'role', // <-- ADD THIS LINE
     ];
+
+    public function exams()
+    {
+        return $this->belongsToMany(Exam::class)->withTimestamps();
+    }
 }
