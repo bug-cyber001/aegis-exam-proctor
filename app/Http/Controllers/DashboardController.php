@@ -7,42 +7,58 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        // --- 1. THE TEACHER DASHBOARD ---
         if (auth()->user()->role === 'teacher') {
+            
+            // Existing Chart & Exam Data
             $recentActivity = \App\Models\Violation::with('user')->latest()->take(5)->get();
             $flagsToday = \App\Models\Violation::whereDate('created_at', today())->count();
             $liveExams = \App\Models\Exam::where('teacher_id', auth()->id())->count();
+            $createdExams = \App\Models\Exam::where('teacher_id', auth()->id())->latest()->get();
 
-            // --- NEW TIMELINE GRAPH LOGIC ---
             $chartDates = [];
             $chartExams = [];
             $chartFlags = [];
 
-            // Loop backwards through the last 7 days
             for ($i = 6; $i >= 0; $i--) {
                 $date = now()->subDays($i);
-                $chartDates[] = $date->format('M d'); // e.g., "Apr 04"
-                
-                // Count exams created on this specific day
+                $chartDates[] = $date->format('M d');
                 $chartExams[] = \App\Models\Exam::where('teacher_id', auth()->id())
                                     ->whereDate('created_at', $date)->count();
-                                    
-                // Count violations logged on this specific day
                 $chartFlags[] = \App\Models\Violation::whereDate('created_at', $date)->count();
             }
 
-            // FETCH THE TEACHER'S CREATED EXAMS!
-            $createdExams = \App\Models\Exam::where('teacher_id', auth()->id())->latest()->get();
+            // NEW: Fetch a quick preview of 3 students
+            $previewStudents = \App\Models\User::where('role', 'student')
+                ->withCount('violations')
+                ->take(3)
+                ->get()
+                ->map(function($student) {
+                    if ($student->violations_count >= 5) {
+                        $student->risk_level = 'High';
+                        $student->risk_color = 'red';
+                    } elseif ($student->violations_count > 0) {
+                        $student->risk_level = 'Medium';
+                        $student->risk_color = 'amber';
+                    } else {
+                        $student->risk_level = 'Low';
+                        $student->risk_color = 'emerald';
+                    }
+                    return $student;
+                });
 
-            // Pass the new array to the view (Notice 'createdExams' at the end)
+            // Make sure 'previewStudents' is in this list!
             return view('dashboards.teacher', compact(
-                'recentActivity', 
-                'flagsToday', 
-                'liveExams',
-                'chartDates',
-                'chartExams',
-                'chartFlags',
-                'createdExams'
+                'recentActivity', 'flagsToday', 'liveExams', 'chartDates', 'chartExams', 'chartFlags', 'createdExams', 'previewStudents'
             ));
+        } 
+        
+        // --- 2. THE STUDENT DASHBOARD ---
+        elseif (auth()->user()->role === 'student') {
+            $myExams = auth()->user()->exams()->latest()->get();
+            return view('dashboards.student', compact('myExams'));
         }
+
+        return view('dashboard');
     }
 }

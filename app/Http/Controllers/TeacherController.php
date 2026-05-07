@@ -48,4 +48,64 @@ class TeacherController extends Controller
 
         return back()->with('success', 'Exam successfully deleted.');
     }
+
+    public function studentsList()
+    {
+        // Fetch all users who are students
+        // withCount() automatically counts their related exams and violations!
+        $students = \App\Models\User::where('role', 'student')
+            ->withCount('exams')
+            ->withCount('violations')
+            ->orderBy('name')
+            ->get()
+            ->map(function($student) {
+                // Calculate Risk Level dynamically!
+                if ($student->violations_count >= 5) {
+                    $student->risk_level = 'High';
+                    $student->risk_color = 'red';
+                } elseif ($student->violations_count > 0) {
+                    $student->risk_level = 'Medium';
+                    $student->risk_color = 'amber';
+                } else {
+                    $student->risk_level = 'Safe';
+                    $student->risk_color = 'emerald';
+                }
+                return $student;
+            });
+
+        // NEW: Calculate how many exams are scheduled/created today
+        $examsToday = \App\Models\Exam::whereDate('created_at', today())->count();
+
+        // Pass BOTH variables to the view
+        return view('dashboards.students', compact('students', 'examsToday'));
+    }
+
+    public function exams()
+    {
+        // Fetch all exams created by this teacher, newest first
+        $exams = \App\Models\Exam::where('teacher_id', auth()->id())
+            ->latest()
+            ->get();
+
+        return view('dashboards.exams', compact('exams'));
+    }
+
+    public function reports()
+    {
+        // Fetch all violations, newest first, and include the student data
+        $violations = \App\Models\Violation::with('user')->latest()->get();
+
+        // Send the data to a new 'reports' view
+        return view('dashboards.reports', compact('violations'));
+    }
+
+    public function createExam()
+    {
+        return view('dashboards.create-exam');
+    }
+
+    public function questionBank()
+    {
+        return view('dashboards.question-bank');
+    }
 }

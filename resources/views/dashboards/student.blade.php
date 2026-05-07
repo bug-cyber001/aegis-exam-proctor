@@ -32,29 +32,12 @@
                             <span class="bg-white text-blue-600 text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">Starts in 45m ></span>
                         </div>
                         <div class="p-8">
-                            <div class="space-y-4">
-    @forelse($myExams as $exam)
-        <div class="flex items-center justify-between p-4 bg-white rounded-2xl hover:bg-slate-50 transition-colors border border-slate-100 shadow-sm">
-            <div class="flex items-center gap-4">
-                <div class="bg-blue-100 text-blue-600 p-3 rounded-xl">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
-                </div>
-                <div>
-                    <h4 class="font-bold text-slate-800">{{ $exam->title }}</h4>
-                    <p class="text-xs text-slate-500 font-medium">Duration: {{ $exam->duration }} mins</p>
-                </div>
-            </div>
-            <a href="{{ route('student.exam.take', $exam->id) }}" class="bg-blue-50 hover:bg-blue-600 hover:text-white text-blue-700 text-xs font-bold px-4 py-2 rounded-lg transition-colors inline-block">
-                ENTER ROOM >
-            </a>
-        </div>
-    @empty
-        <div class="text-center py-6 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-            <p class="text-slate-400 text-sm font-bold">You haven't joined any exams yet.</p>
-            <p class="text-slate-400 text-xs mt-1">Use a 6-digit access code to join one above!</p>
-        </div>
-    @endforelse
-</div>
+                            <h2 class="text-2xl font-black text-slate-800 mb-4">Math Final Exam</h2>
+                            <div class="space-y-3 text-slate-600 text-sm font-medium mb-8">
+                                <p class="flex items-center gap-2"><span>📅</span> Today at 1:00 PM</p>
+                                <p class="flex items-center gap-2"><span>⏱</span> 75 minutes</p>
+                                <p class="flex items-center gap-2"><span>📝</span> Questions: 50</p>
+                            </div>
                             <button class="w-full bg-[#3B82F6] hover:bg-blue-600 text-white font-bold py-4 rounded-2xl transition-colors shadow-lg shadow-blue-500/30">
                                 GO TO EXAM
                             </button>
@@ -64,24 +47,7 @@
                     <div class="bg-white rounded-[2rem] p-8 shadow-xl shadow-slate-200/40 border border-slate-100">
                         <div class="flex justify-between items-center mb-6">
                             <h3 class="text-xl font-bold text-slate-800">My Exams</h3>
-                            <form action="{{ route('student.join') }}" method="POST" class="mb-6 flex gap-2">
-                                @csrf
-                                <input type="text" name="access_code" placeholder="Enter 6-Digit Exam Code" required maxlength="6" class="flex-1 rounded-xl border-slate-200 text-sm focus:ring-blue-500 focus:border-blue-500 uppercase">
-                                <button type="submit" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-6 py-2 rounded-xl text-xs transition-colors">
-                                    Join
-                                </button>
-                            </form>
-
-                            @if(session('success'))
-                                <div class="mb-4 p-3 bg-emerald-50 text-emerald-700 rounded-xl text-sm font-bold border border-emerald-100">
-                                    {{ session('success') }}
-                                </div>
-                            @endif
-                            @if(session('error'))
-                                <div class="mb-4 p-3 bg-red-50 text-red-700 rounded-xl text-sm font-bold border border-red-100">
-                                    {{ session('error') }}
-                                </div>
-                            @endif
+                            <a href="#" class="text-sm font-bold text-slate-400 hover:text-blue-500">VIEW ALL</a>
                         </div>
                         <div class="space-y-4">
                             <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
@@ -198,7 +164,7 @@
         async function loadModels() {
             try {
                 statusText.innerText = "AI: Loading Models...";
-                const MODEL_URL = 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights';
+                const MODEL_URL = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights';
                 await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
                 statusText.innerText = "AI: System Ready";
             } catch (err) {
@@ -288,31 +254,7 @@
 
         startBtn.addEventListener('click', startAegis);
         stopBtn.addEventListener('click', stopAegis);
-        // ==========================================
-        // LAYER 2: ANTI-TAB SWITCHING SYSTEM
-        // ==========================================
-        document.addEventListener("visibilitychange", () => {
-            // If the system is offline, don't punish them for switching tabs
-            if (!stream) return; 
 
-            if (document.hidden) {
-                console.log("Aegis: Tab switch detected!");
-                
-                // 1. Log the violation to the database
-                logViolation('TAB_SWITCH');
-
-                // 2. Turn the screen Red with a specific warning
-                warningOverlay.classList.remove('hidden');
-                warningOverlay.innerHTML = `
-                    <div class="text-center p-8 bg-white rounded-3xl shadow-2xl scale-110 border-4 border-red-500">
-                        <h2 class="text-3xl font-black text-red-600 tracking-tight uppercase">Tab Switch Detected</h2>
-                        <p class="text-slate-700 font-bold mt-2">You left the exam environment.</p>
-                        <p class="text-[10px] text-red-500 font-black tracking-widest mt-4 uppercase">This action has been logged.</p>
-                        <button onclick="document.getElementById('ai-warning').classList.add('hidden')" class="mt-6 bg-slate-900 text-white px-6 py-2 rounded-xl text-xs font-bold">I Understand</button>
-                    </div>
-                `;
-            }
-        });
         loadModels();
     </script>
 </x-app-layout>

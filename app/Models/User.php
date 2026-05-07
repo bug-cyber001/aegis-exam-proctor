@@ -37,8 +37,19 @@ class User extends Authenticatable
         'role', // <-- ADD THIS LINE
     ];
 
+    /**
+     * A user (student) belongs to many exams.
+     */
     public function exams()
     {
-        return $this->belongsToMany(Exam::class)->withTimestamps();
+        return $this->belongsToMany(Exam::class);
+    }
+
+    /**
+     * A user can have many violations during their exams.
+     */
+    public function violations()
+    {
+        return $this->hasMany(Violation::class);
     }
 }

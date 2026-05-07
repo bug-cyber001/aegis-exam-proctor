@@ -36,6 +36,10 @@ Route::middleware('auth', 'verified')->group(function () {
 
     // Teacher Route
     Route::post('/teacher/create-exam', [TeacherController::class, 'storeExam'])->name('teacher.exam.store');
+    Route::get('/teacher/students', [TeacherController::class, 'studentsList'])->name('teacher.students');
+    Route::get('/teacher/exams', [App\Http\Controllers\TeacherController::class, 'exams'])->name('teacher.exams');
+    Route::get('/teacher/exams/create', [App\Http\Controllers\TeacherController::class, 'createExam'])->name('teacher.exam.create');
+    Route::get('/teacher/question-bank', [App\Http\Controllers\TeacherController::class, 'questionBank'])->name('teacher.question-bank');
     // Delete Exam Route
     Route::delete('/teacher/exam/{id}', [TeacherController::class, 'destroyExam'])->name('teacher.exam.destroy');
 
